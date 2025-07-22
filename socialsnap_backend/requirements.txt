@@ -1,0 +1,12 @@
+django
+djangorestframework
+django-cors-headers
+channels
+channels-redis
+requests
+pillow
+psycopg2-binary
+python-decouple
+django-filter
+gunicorn
+
