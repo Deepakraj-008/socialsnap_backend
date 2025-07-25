@@ -2,17 +2,15 @@ import os
 from pathlib import Path
 from decouple import config
 
-# Base directory
+# BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Secret and debug config
-SECRET_KEY = config("SECRET_KEY")
+# SECURITY
+SECRET_KEY = config("SECRET_KEY", default="unsafe-secret-key")
 DEBUG = config("DEBUG", default=False, cast=bool)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*").split(",")
 
-# Hosts
-ALLOWED_HOSTS = ['*']  # Adjust for production
-
-# Installed apps
+# APPLICATION DEFINITION
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -21,12 +19,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Third-party
+    # Third-party apps
     "rest_framework",
     "corsheaders",
     "channels",
 
-    # Your apps
+    # Local apps
     "users",
     "posts",
     "chat_messages",
@@ -34,7 +32,6 @@ INSTALLED_APPS = [
     "analytics",
 ]
 
-# Middleware
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -46,12 +43,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# URL and WSGI/ASGI configs
 ROOT_URLCONF = "socialsnap.urls"
-WSGI_APPLICATION = "socialsnap.wsgi.application"
-ASGI_APPLICATION = "socialsnap.asgi.application"  # for WebSockets
 
-# Templates
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -68,25 +61,30 @@ TEMPLATES = [
     },
 ]
 
-# Redis Channel Layer (WebSockets)
+WSGI_APPLICATION = "socialsnap.wsgi.application"
+ASGI_APPLICATION = "socialsnap.asgi.application"
+
+# CHANNELS
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(config("REDIS_HOST", default="127.0.0.1"), 6379)],
+            "hosts": [
+                (config("REDIS_HOST", default="127.0.0.1"), 6379)
+            ],
         },
     },
 }
 
-# SQLite Database
+# DATABASE
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
-# Password validators
+# PASSWORD VALIDATION
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -94,24 +92,23 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# Language, time zone, internationalization
+# INTERNATIONALIZATION
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# Static and media files
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+# STATIC & MEDIA
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# Custom User model
+# CUSTOM USER MODEL
 AUTH_USER_MODEL = "users.User"
 
-# REST framework config
+# REST FRAMEWORK
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
@@ -127,12 +124,11 @@ REST_FRAMEWORK = {
     },
 }
 
-# CORS allowed origins (adjust as needed)
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080",
-    "http://127.0.0.1:8000",
-    # Add your Flutter frontend URLs here
-]
+# CORS CONFIGURATION
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS",
+    default="http://localhost:8080,http://127.0.0.1:8000"
+).split(",")
 
-# OpenAI API Key (optional for AI module)
-OPENAI_API_KEY = config("OPENAI_API_KEY")
+# OPENAI API KEY
+OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
